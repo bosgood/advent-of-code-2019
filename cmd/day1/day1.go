@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	fmt.Println("你好，世界")
+	log.Info("你好，世界")
 }
