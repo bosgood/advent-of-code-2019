@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"reflect"
 	"strings"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	// try(err)
 	// trimmed := bytes.TrimSpace(b)
 	fmt.Println(Part1(""))
+	fmt.Println(Part2(""))
 }
 
 type System []Body
@@ -136,6 +138,40 @@ func Part1(input string) string {
 	}
 
 	return fmt.Sprintf("%d", s.Energy())
+}
+
+func Part2(input string) string {
+	s := System{
+		Body{
+			Position: Vector{-4, 3, 15},
+			Velocity: Vector{0, 0, 0},
+		},
+		Body{
+			Position: Vector{-11, -10, 13},
+			Velocity: Vector{0, 0, 0},
+		},
+		Body{
+			Position: Vector{2, 2, 18},
+			Velocity: Vector{0, 0, 0},
+		},
+		Body{
+			Position: Vector{7, -1, 0},
+			Velocity: Vector{0, 0, 0},
+		},
+	}
+
+	iterations := 0
+
+	s1 := s
+	for {
+		iterations++
+		s1 = s1.Step()
+		if reflect.DeepEqual(s, s1) {
+			break
+		}
+	}
+
+	return fmt.Sprintf("%d", iterations)
 }
 
 var (
