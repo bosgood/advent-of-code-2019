@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"reflect"
 	"strings"
 )
 
@@ -19,8 +18,8 @@ func main() {
 	// b, err := ioutil.ReadAll(f)
 	// try(err)
 	// trimmed := bytes.TrimSpace(b)
-	fmt.Println(Part1(""))
-	fmt.Println(Part2(""))
+	Part1()
+	Part2()
 }
 
 type System []Body
@@ -113,7 +112,7 @@ func compareAxis(v1, v2 int) int {
 	}
 }
 
-func Part1(input string) string {
+func Part1() {
 	s := System{
 		Body{
 			Position: Vector{-4, 3, 15},
@@ -137,11 +136,32 @@ func Part1(input string) string {
 		s = s.Step()
 	}
 
-	return fmt.Sprintf("%d", s.Energy())
+	fmt.Printf("Energy after 1000 iterations: %d\n", s.Energy())
 }
 
-func Part2(input string) string {
-	s := System{
+// greatest common divisor (GCD) via Euclidean algorithm
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+// find Least Common Multiple (LCM) via GCD
+func LCM(a, b int, integers ...int) int {
+	result := a * b / GCD(a, b)
+
+	for i := 0; i < len(integers); i++ {
+		result = LCM(result, integers[i])
+	}
+
+	return result
+}
+
+func Part2() {
+	start := System{
 		Body{
 			Position: Vector{-4, 3, 15},
 			Velocity: Vector{0, 0, 0},
@@ -161,17 +181,62 @@ func Part2(input string) string {
 	}
 
 	iterations := 0
-
-	s1 := s
+	current := start
+	var periodX int
+	var periodY int
+	var periodZ int
 	for {
 		iterations++
-		s1 = s1.Step()
-		if reflect.DeepEqual(s, s1) {
+		current = current.Step()
+		if periodX == 0 && repeatedX(start, current) {
+			periodX = iterations
+		}
+		if periodY == 0 && repeatedY(start, current) {
+			periodY = iterations
+		}
+		if periodZ == 0 && repeatedZ(start, current) {
+			periodZ = iterations
+		}
+
+		if periodX != 0 && periodY != 0 && periodZ != 0 {
 			break
 		}
 	}
 
-	return fmt.Sprintf("%d", iterations)
+	fmt.Printf("%d iterations for X\n", periodX)
+	fmt.Printf("%d iterations for Y\n", periodY)
+	fmt.Printf("%d iterations for Z\n", periodZ)
+
+	lcm := LCM(periodX, periodY, periodZ)
+	fmt.Printf("LCM for periods: %d\n", lcm)
+}
+
+func repeated(s1, s2 System, pred func(Body, Body) bool) bool {
+	for i := range s1 {
+		if !pred(s1[i], s2[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func repeatedX(s1, s2 System) bool {
+	return repeated(s1, s2, func(b1, b2 Body) bool {
+		return b1.Position.X == b2.Position.X &&
+			b1.Velocity.X == b2.Velocity.X
+	})
+}
+func repeatedY(s1, s2 System) bool {
+	return repeated(s1, s2, func(b1, b2 Body) bool {
+		return b1.Position.Y == b2.Position.Y &&
+			b1.Velocity.Y == b2.Velocity.Y
+	})
+}
+func repeatedZ(s1, s2 System) bool {
+	return repeated(s1, s2, func(b1, b2 Body) bool {
+		return b1.Position.Z == b2.Position.Z &&
+			b1.Velocity.Z == b2.Velocity.Z
+	})
 }
 
 var (
